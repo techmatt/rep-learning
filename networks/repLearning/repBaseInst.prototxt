@@ -355,11 +355,11 @@ layer {
 
 # @repSimulate(prefix=simulate1,bottom=physState1,top=physState2)
 
-# @ip(name=simulate1-fc0,paramName=simFC0Params,bottom=physState0,outputs=512)
+# @ip(name=simulate1-fc0,paramName=simFC0Params,bottom=physState1,outputs=512)
 layer {
   name: "simulate1-fc0"
   type: "InnerProduct"
-  bottom: "physState0"
+  bottom: "physState1"
   top: "simulate1-fc0"
   param { name: "simFC0Paramsw" lr_mult: 1 }
   param { name: "simFC0Paramsb" lr_mult: 2 }
@@ -445,11 +445,11 @@ layer {
 
 # @repSimulate(prefix=simulate2,bottom=physState2,top=physState3)
 
-# @ip(name=simulate2-fc0,paramName=simFC0Params,bottom=physState0,outputs=512)
+# @ip(name=simulate2-fc0,paramName=simFC0Params,bottom=physState2,outputs=512)
 layer {
   name: "simulate2-fc0"
   type: "InnerProduct"
-  bottom: "physState0"
+  bottom: "physState2"
   top: "simulate2-fc0"
   param { name: "simFC0Paramsw" lr_mult: 1 }
   param { name: "simFC0Paramsb" lr_mult: 2 }

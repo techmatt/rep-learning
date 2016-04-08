@@ -4,7 +4,7 @@ struct PhysicsNetEntry
     static const int historyFrameCount = 4;
     static const int futureFrameCount = 3;
 
-    void save(const string &prefix)
+    vector<ColorImageR8G8B8A8> makeVisualization()
     {
         auto extractHistoryFrame = [&](int index)
         {
@@ -26,17 +26,34 @@ struct PhysicsNetEntry
             return image;
         };
 
+        vector<ColorImageR8G8B8A8> result;
         for (int i = 0; i < historyFrameCount; i++)
         {
             const Grid3uc frame = extractHistoryFrame(i);
-            LodePNG::save(makeImage(frame), prefix + "_h" + to_string(i) + ".png");
+            result.push_back(makeImage(frame));
         }
 
         for (int i = 0; i < futureFrameCount; i++)
         {
-            LodePNG::save(makeImage(future[i]), prefix + "_n" + to_string(i) + ".png");
+            result.push_back(makeImage(future[i]));
+        }
+        return result;
+    }
+
+    void save(const string &prefix)
+    {
+        const vector<ColorImageR8G8B8A8> images = makeVisualization();
+        for (int i = 0; i < historyFrameCount; i++)
+        {
+            LodePNG::save(images[i], prefix + "_h" + to_string(i) + ".png");
+        }
+
+        for (int i = 0; i < futureFrameCount; i++)
+        {
+            LodePNG::save(images[i + historyFrameCount], prefix + "_n" + to_string(i) + ".png");
         }
     }
+
     // 128x128
     // frame 0 - 3 = history, 4 - 6 = future
     Grid3uc history;
@@ -66,7 +83,7 @@ struct PhysicsNetDatabase
 {
     void init();
 
-    PhysicsNetEntry makeRandomEntry();
+    static PhysicsNetEntry makeRandomEntry();
     
     void createDatabase(const string &directory, int sampleCount);
 };

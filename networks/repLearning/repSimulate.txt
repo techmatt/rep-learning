@@ -1,5 +1,5 @@
 params=prefix,bottom,top
-@ip(name=#prefix-fc0,paramName=simFC0Params,bottom=physState0,outputs=512)
+@ip(name=#prefix-fc0,paramName=simFC0Params,bottom=#bottom,outputs=512)
 @relu(name=#prefix-relu0)
 @ip(name=#prefix-fc1,paramName=simFC1Params,outputs=512)
 @relu(name=#prefix-relu1)
