@@ -157,7 +157,7 @@ layer {
   type: "ReLU"
 }
 
-# @conv(name=encode-conv6,outputs=8,kernel=3)
+# @conv(name=encode-conv6,outputs=30,kernel=3)
 layer {
   name: "encode-conv6"
   bottom: "encode-conv5"
@@ -167,7 +167,7 @@ layer {
   param { name: "encode-conv6b" lr_mult: 2 decay_mult: 0 }
   convolution_param {
     weight_filler { type: "xavier" } bias_filler { type: "constant" }
-    num_output: 8
+    num_output: 30
     pad: 0
     kernel_size: 3
 	stride: 1
@@ -219,12 +219,12 @@ layer {
   }
 }
 
-# @relu(name=encode-relu8)
+# @tanh(name=encode-relu8)
 layer {
   name: "encode-relu8"
   bottom: "encode-fc8"
   top: "encode-fc8"
-  type: "ReLU"
+  type: "TanH"
 }
 
 # @ip(name=encode-fc9,outputs=128)
@@ -241,12 +241,12 @@ layer {
   }
 }
 
-# @relu(name=encode-relu9)
+# @tanh(name=encode-relu9)
 layer {
   name: "encode-relu9"
   bottom: "encode-fc9"
   top: "encode-fc9"
-  type: "ReLU"
+  type: "TanH"
 }
 
 # @slice2(name=encode-slicer,topA=physState0,topB=materialState,cut=64)
@@ -279,12 +279,12 @@ layer {
   }
 }
 
-# @relu(name=simulate0-relu0)
+# @tanh(name=simulate0-relu0)
 layer {
   name: "simulate0-relu0"
   bottom: "simulate0-fc0"
   top: "simulate0-fc0"
-  type: "ReLU"
+  type: "TanH"
 }
 
 # @ip(name=simulate0-fc1,paramName=simFC1Params,outputs=512)
@@ -301,12 +301,12 @@ layer {
   }
 }
 
-# @relu(name=simulate0-relu1)
+# @tanh(name=simulate0-relu1)
 layer {
   name: "simulate0-relu1"
   bottom: "simulate0-fc1"
   top: "simulate0-fc1"
-  type: "ReLU"
+  type: "TanH"
 }
 
 # @ip(name=simulate0-fc2,paramName=simFC2Params,outputs=256)
@@ -323,12 +323,12 @@ layer {
   }
 }
 
-# @relu(name=simulate0-relu2)
+# @tanh(name=simulate0-relu2)
 layer {
   name: "simulate0-relu2"
   bottom: "simulate0-fc2"
   top: "simulate0-fc2"
-  type: "ReLU"
+  type: "TanH"
 }
 
 # @ip(name=physState1,paramName=simFC3Params,outputs=64)
@@ -345,12 +345,12 @@ layer {
   }
 }
 
-# @relu(name=simulate0-relu3)
+# @tanh(name=simulate0-relu3)
 layer {
   name: "simulate0-relu3"
   bottom: "physState1"
   top: "physState1"
-  type: "ReLU"
+  type: "TanH"
 }
 
 # @repSimulate(prefix=simulate1,bottom=physState1,top=physState2)
@@ -369,12 +369,12 @@ layer {
   }
 }
 
-# @relu(name=simulate1-relu0)
+# @tanh(name=simulate1-relu0)
 layer {
   name: "simulate1-relu0"
   bottom: "simulate1-fc0"
   top: "simulate1-fc0"
-  type: "ReLU"
+  type: "TanH"
 }
 
 # @ip(name=simulate1-fc1,paramName=simFC1Params,outputs=512)
@@ -391,12 +391,12 @@ layer {
   }
 }
 
-# @relu(name=simulate1-relu1)
+# @tanh(name=simulate1-relu1)
 layer {
   name: "simulate1-relu1"
   bottom: "simulate1-fc1"
   top: "simulate1-fc1"
-  type: "ReLU"
+  type: "TanH"
 }
 
 # @ip(name=simulate1-fc2,paramName=simFC2Params,outputs=256)
@@ -413,12 +413,12 @@ layer {
   }
 }
 
-# @relu(name=simulate1-relu2)
+# @tanh(name=simulate1-relu2)
 layer {
   name: "simulate1-relu2"
   bottom: "simulate1-fc2"
   top: "simulate1-fc2"
-  type: "ReLU"
+  type: "TanH"
 }
 
 # @ip(name=physState2,paramName=simFC3Params,outputs=64)
@@ -435,12 +435,12 @@ layer {
   }
 }
 
-# @relu(name=simulate1-relu3)
+# @tanh(name=simulate1-relu3)
 layer {
   name: "simulate1-relu3"
   bottom: "physState2"
   top: "physState2"
-  type: "ReLU"
+  type: "TanH"
 }
 
 # @repSimulate(prefix=simulate2,bottom=physState2,top=physState3)
@@ -459,12 +459,12 @@ layer {
   }
 }
 
-# @relu(name=simulate2-relu0)
+# @tanh(name=simulate2-relu0)
 layer {
   name: "simulate2-relu0"
   bottom: "simulate2-fc0"
   top: "simulate2-fc0"
-  type: "ReLU"
+  type: "TanH"
 }
 
 # @ip(name=simulate2-fc1,paramName=simFC1Params,outputs=512)
@@ -481,12 +481,12 @@ layer {
   }
 }
 
-# @relu(name=simulate2-relu1)
+# @tanh(name=simulate2-relu1)
 layer {
   name: "simulate2-relu1"
   bottom: "simulate2-fc1"
   top: "simulate2-fc1"
-  type: "ReLU"
+  type: "TanH"
 }
 
 # @ip(name=simulate2-fc2,paramName=simFC2Params,outputs=256)
@@ -503,12 +503,12 @@ layer {
   }
 }
 
-# @relu(name=simulate2-relu2)
+# @tanh(name=simulate2-relu2)
 layer {
   name: "simulate2-relu2"
   bottom: "simulate2-fc2"
   top: "simulate2-fc2"
-  type: "ReLU"
+  type: "TanH"
 }
 
 # @ip(name=physState3,paramName=simFC3Params,outputs=64)
@@ -525,12 +525,12 @@ layer {
   }
 }
 
-# @relu(name=simulate2-relu3)
+# @tanh(name=simulate2-relu3)
 layer {
   name: "simulate2-relu3"
   bottom: "physState3"
   top: "physState3"
-  type: "ReLU"
+  type: "TanH"
 }
 
 
@@ -560,12 +560,12 @@ layer {
   }
 }
 
-# @relu(name=decode1-relu1)
+# @tanh(name=decode1-relu1)
 layer {
   name: "decode1-relu1"
   bottom: "decode1-fc1"
   top: "decode1-fc1"
-  type: "ReLU"
+  type: "TanH"
 }
 
 # @ip(name=decode1-fc2,paramName=decodeFC2Params,outputs=256)
@@ -724,12 +724,12 @@ layer {
   }
 }
 
-# @relu(name=decode2-relu1)
+# @tanh(name=decode2-relu1)
 layer {
   name: "decode2-relu1"
   bottom: "decode2-fc1"
   top: "decode2-fc1"
-  type: "ReLU"
+  type: "TanH"
 }
 
 # @ip(name=decode2-fc2,paramName=decodeFC2Params,outputs=256)
@@ -888,12 +888,12 @@ layer {
   }
 }
 
-# @relu(name=decode3-relu1)
+# @tanh(name=decode3-relu1)
 layer {
   name: "decode3-relu1"
   bottom: "decode3-fc1"
   top: "decode3-fc1"
-  type: "ReLU"
+  type: "TanH"
 }
 
 # @ip(name=decode3-fc2,paramName=decodeFC2Params,outputs=256)

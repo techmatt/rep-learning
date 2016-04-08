@@ -29,7 +29,7 @@ void PhysicsWorld::render(const PhysicsRender &render, ColorImageR8G8B8A8 &image
 
 void PhysicsWorld::init()
 {
-    b2Vec2 gravity(0.0f, -100.0f);
+    b2Vec2 gravity(0.0f, -20.0f);
 
     bodies.clear();
     world = new b2World(gravity);

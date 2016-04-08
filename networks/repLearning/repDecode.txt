@@ -1,7 +1,7 @@
 params=prefix,bottomPhys,bottomMaterial,target
 @concat2(name=#prefix-concat,bottomA=#bottomPhys,bottomB=#bottomMaterial)
 @ip(name=#prefix-fc1,paramName=decodeFC1Params,outputs=128)
-@relu(name=#prefix-relu1)
+@tanh(name=#prefix-relu1)
 @ip(name=#prefix-fc2,paramName=decodeFC2Params,outputs=256)
 @relu(name=#prefix-relu2)
 @ip(name=#prefix-fc3,paramName=decodeFC3Params,outputs=3136)
