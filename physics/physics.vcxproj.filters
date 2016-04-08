@@ -4,14 +4,27 @@
     <ClInclude Include="vizzer.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="mLibInclude.h" />
-    <ClInclude Include="physicsWorld.h" />
-    <ClInclude Include="physicsDatabase.h" />
+    <ClInclude Include="..\common\physicsDatabase.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\physicsWorld.h">
+      <Filter>common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mLibSource.cpp" />
     <ClCompile Include="vizzer.cpp" />
-    <ClCompile Include="physicsWorld.cpp" />
-    <ClCompile Include="physicsDatabase.cpp" />
+    <ClCompile Include="..\common\physicsDatabase.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\physicsWorld.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="common">
+      <UniqueIdentifier>{3a8df020-5499-4b7a-88a5-28e519d1537a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

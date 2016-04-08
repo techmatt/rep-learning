@@ -1,25 +1,25 @@
 name: "RepNet"
 
 input: "history"
-input_dim: 3
+input_dim: 32
 input_dim: 12
 input_dim: 128
 input_dim: 128
 
 input: "future1"
-input_dim: 3
+input_dim: 32
 input_dim: 3
 input_dim: 64
 input_dim: 64
 
 input: "future2"
-input_dim: 3
+input_dim: 32
 input_dim: 3
 input_dim: 64
 input_dim: 64
 
 input: "future3"
-input_dim: 3
+input_dim: 32
 input_dim: 3
 input_dim: 64
 input_dim: 64
@@ -175,59 +175,37 @@ layer {
   }
 }
 
-# @tanh(name=encode-relu6)
+# @relu(name=encode-relu6)
 layer {
   name: "encode-relu6"
   bottom: "encode-conv6"
   top: "encode-conv6"
-  type: "TanH"
+  type: "ReLU"
 }
 
-# @ip(name=encode-fc6,outputs=256)
-layer {
-  name: "encode-fc6"
-  type: "InnerProduct"
-  bottom: "encode-conv6"
-  top: "encode-fc6"
-  param { name: "encode-fc6w" lr_mult: 1 }
-  param { name: "encode-fc6b" lr_mult: 2 }
-  inner_product_param {
-    num_output: 256
-    weight_filler { type: "xavier" } bias_filler { type: "constant" }
-  }
-}
-
-# @tanh(name=encode-tanh6)
-layer {
-  name: "encode-tanh6"
-  bottom: "encode-fc6"
-  top: "encode-fc6"
-  type: "TanH"
-}
-
-# @ip(name=encode-fc7,outputs=256)
+# @ip(name=encode-fc7,outputs=2048)
 layer {
   name: "encode-fc7"
   type: "InnerProduct"
-  bottom: "encode-fc6"
+  bottom: "encode-conv6"
   top: "encode-fc7"
   param { name: "encode-fc7w" lr_mult: 1 }
   param { name: "encode-fc7b" lr_mult: 2 }
   inner_product_param {
-    num_output: 256
+    num_output: 2048
     weight_filler { type: "xavier" } bias_filler { type: "constant" }
   }
 }
 
-# @tanh(name=encode-tanh7)
+# @relu(name=encode-relu7)
 layer {
-  name: "encode-tanh7"
+  name: "encode-relu7"
   bottom: "encode-fc7"
   top: "encode-fc7"
-  type: "TanH"
+  type: "ReLU"
 }
 
-# @ip(name=encode-fc8,outputs=128)
+# @ip(name=encode-fc8,outputs=2048)
 layer {
   name: "encode-fc8"
   type: "InnerProduct"
@@ -236,23 +214,45 @@ layer {
   param { name: "encode-fc8w" lr_mult: 1 }
   param { name: "encode-fc8b" lr_mult: 2 }
   inner_product_param {
+    num_output: 2048
+    weight_filler { type: "xavier" } bias_filler { type: "constant" }
+  }
+}
+
+# @relu(name=encode-relu8)
+layer {
+  name: "encode-relu8"
+  bottom: "encode-fc8"
+  top: "encode-fc8"
+  type: "ReLU"
+}
+
+# @ip(name=encode-fc9,outputs=128)
+layer {
+  name: "encode-fc9"
+  type: "InnerProduct"
+  bottom: "encode-fc8"
+  top: "encode-fc9"
+  param { name: "encode-fc9w" lr_mult: 1 }
+  param { name: "encode-fc9b" lr_mult: 2 }
+  inner_product_param {
     num_output: 128
     weight_filler { type: "xavier" } bias_filler { type: "constant" }
   }
 }
 
-# @tanh(name=encode-tanh8)
+# @relu(name=encode-relu9)
 layer {
-  name: "encode-tanh8"
-  bottom: "encode-fc8"
-  top: "encode-fc8"
-  type: "TanH"
+  name: "encode-relu9"
+  bottom: "encode-fc9"
+  top: "encode-fc9"
+  type: "ReLU"
 }
 
 # @slice2(name=encode-slicer,topA=physState0,topB=materialState,cut=64)
 layer {
   name: "encode-slicer"
-  bottom: "encode-fc8"
+  bottom: "encode-fc9"
   top: "physState0"
   top: "materialState"
   type: "Slice"
@@ -265,7 +265,7 @@ layer {
 
 # @repSimulate(prefix=simulate0,bottom=physState0,top=physState1)
 
-# @ip(name=simulate0-fc0,paramName=simFC0Params,bottom=physState0,outputs=128)
+# @ip(name=simulate0-fc0,paramName=simFC0Params,bottom=physState0,outputs=512)
 layer {
   name: "simulate0-fc0"
   type: "InnerProduct"
@@ -274,20 +274,20 @@ layer {
   param { name: "simFC0Paramsw" lr_mult: 1 }
   param { name: "simFC0Paramsb" lr_mult: 2 }
   inner_product_param {
-    num_output: 128
+    num_output: 512
     weight_filler { type: "xavier" } bias_filler { type: "constant" }
   }
 }
 
-# @tanh(name=simulate0-tanh0)
+# @relu(name=simulate0-relu0)
 layer {
-  name: "simulate0-tanh0"
+  name: "simulate0-relu0"
   bottom: "simulate0-fc0"
   top: "simulate0-fc0"
-  type: "TanH"
+  type: "ReLU"
 }
 
-# @ip(name=simulate0-fc1,paramName=simFC1Params,outputs=128)
+# @ip(name=simulate0-fc1,paramName=simFC1Params,outputs=512)
 layer {
   name: "simulate0-fc1"
   type: "InnerProduct"
@@ -296,20 +296,20 @@ layer {
   param { name: "simFC1Paramsw" lr_mult: 1 }
   param { name: "simFC1Paramsb" lr_mult: 2 }
   inner_product_param {
-    num_output: 128
+    num_output: 512
     weight_filler { type: "xavier" } bias_filler { type: "constant" }
   }
 }
 
-# @tanh(name=simulate0-tanh1)
+# @relu(name=simulate0-relu1)
 layer {
-  name: "simulate0-tanh1"
+  name: "simulate0-relu1"
   bottom: "simulate0-fc1"
   top: "simulate0-fc1"
-  type: "TanH"
+  type: "ReLU"
 }
 
-# @ip(name=simulate0-fc2,paramName=simFC2Params,outputs=64)
+# @ip(name=simulate0-fc2,paramName=simFC2Params,outputs=256)
 layer {
   name: "simulate0-fc2"
   type: "InnerProduct"
@@ -318,17 +318,17 @@ layer {
   param { name: "simFC2Paramsw" lr_mult: 1 }
   param { name: "simFC2Paramsb" lr_mult: 2 }
   inner_product_param {
-    num_output: 64
+    num_output: 256
     weight_filler { type: "xavier" } bias_filler { type: "constant" }
   }
 }
 
-# @tanh(name=simulate0-tanh2)
+# @relu(name=simulate0-relu2)
 layer {
-  name: "simulate0-tanh2"
+  name: "simulate0-relu2"
   bottom: "simulate0-fc2"
   top: "simulate0-fc2"
-  type: "TanH"
+  type: "ReLU"
 }
 
 # @ip(name=physState1,paramName=simFC3Params,outputs=64)
@@ -345,17 +345,17 @@ layer {
   }
 }
 
-# @tanh(name=simulate0-tanh3)
+# @relu(name=simulate0-relu3)
 layer {
-  name: "simulate0-tanh3"
+  name: "simulate0-relu3"
   bottom: "physState1"
   top: "physState1"
-  type: "TanH"
+  type: "ReLU"
 }
 
 # @repSimulate(prefix=simulate1,bottom=physState1,top=physState2)
 
-# @ip(name=simulate1-fc0,paramName=simFC0Params,bottom=physState0,outputs=128)
+# @ip(name=simulate1-fc0,paramName=simFC0Params,bottom=physState0,outputs=512)
 layer {
   name: "simulate1-fc0"
   type: "InnerProduct"
@@ -364,20 +364,20 @@ layer {
   param { name: "simFC0Paramsw" lr_mult: 1 }
   param { name: "simFC0Paramsb" lr_mult: 2 }
   inner_product_param {
-    num_output: 128
+    num_output: 512
     weight_filler { type: "xavier" } bias_filler { type: "constant" }
   }
 }
 
-# @tanh(name=simulate1-tanh0)
+# @relu(name=simulate1-relu0)
 layer {
-  name: "simulate1-tanh0"
+  name: "simulate1-relu0"
   bottom: "simulate1-fc0"
   top: "simulate1-fc0"
-  type: "TanH"
+  type: "ReLU"
 }
 
-# @ip(name=simulate1-fc1,paramName=simFC1Params,outputs=128)
+# @ip(name=simulate1-fc1,paramName=simFC1Params,outputs=512)
 layer {
   name: "simulate1-fc1"
   type: "InnerProduct"
@@ -386,20 +386,20 @@ layer {
   param { name: "simFC1Paramsw" lr_mult: 1 }
   param { name: "simFC1Paramsb" lr_mult: 2 }
   inner_product_param {
-    num_output: 128
+    num_output: 512
     weight_filler { type: "xavier" } bias_filler { type: "constant" }
   }
 }
 
-# @tanh(name=simulate1-tanh1)
+# @relu(name=simulate1-relu1)
 layer {
-  name: "simulate1-tanh1"
+  name: "simulate1-relu1"
   bottom: "simulate1-fc1"
   top: "simulate1-fc1"
-  type: "TanH"
+  type: "ReLU"
 }
 
-# @ip(name=simulate1-fc2,paramName=simFC2Params,outputs=64)
+# @ip(name=simulate1-fc2,paramName=simFC2Params,outputs=256)
 layer {
   name: "simulate1-fc2"
   type: "InnerProduct"
@@ -408,17 +408,17 @@ layer {
   param { name: "simFC2Paramsw" lr_mult: 1 }
   param { name: "simFC2Paramsb" lr_mult: 2 }
   inner_product_param {
-    num_output: 64
+    num_output: 256
     weight_filler { type: "xavier" } bias_filler { type: "constant" }
   }
 }
 
-# @tanh(name=simulate1-tanh2)
+# @relu(name=simulate1-relu2)
 layer {
-  name: "simulate1-tanh2"
+  name: "simulate1-relu2"
   bottom: "simulate1-fc2"
   top: "simulate1-fc2"
-  type: "TanH"
+  type: "ReLU"
 }
 
 # @ip(name=physState2,paramName=simFC3Params,outputs=64)
@@ -435,17 +435,17 @@ layer {
   }
 }
 
-# @tanh(name=simulate1-tanh3)
+# @relu(name=simulate1-relu3)
 layer {
-  name: "simulate1-tanh3"
+  name: "simulate1-relu3"
   bottom: "physState2"
   top: "physState2"
-  type: "TanH"
+  type: "ReLU"
 }
 
 # @repSimulate(prefix=simulate2,bottom=physState2,top=physState3)
 
-# @ip(name=simulate2-fc0,paramName=simFC0Params,bottom=physState0,outputs=128)
+# @ip(name=simulate2-fc0,paramName=simFC0Params,bottom=physState0,outputs=512)
 layer {
   name: "simulate2-fc0"
   type: "InnerProduct"
@@ -454,20 +454,20 @@ layer {
   param { name: "simFC0Paramsw" lr_mult: 1 }
   param { name: "simFC0Paramsb" lr_mult: 2 }
   inner_product_param {
-    num_output: 128
+    num_output: 512
     weight_filler { type: "xavier" } bias_filler { type: "constant" }
   }
 }
 
-# @tanh(name=simulate2-tanh0)
+# @relu(name=simulate2-relu0)
 layer {
-  name: "simulate2-tanh0"
+  name: "simulate2-relu0"
   bottom: "simulate2-fc0"
   top: "simulate2-fc0"
-  type: "TanH"
+  type: "ReLU"
 }
 
-# @ip(name=simulate2-fc1,paramName=simFC1Params,outputs=128)
+# @ip(name=simulate2-fc1,paramName=simFC1Params,outputs=512)
 layer {
   name: "simulate2-fc1"
   type: "InnerProduct"
@@ -476,20 +476,20 @@ layer {
   param { name: "simFC1Paramsw" lr_mult: 1 }
   param { name: "simFC1Paramsb" lr_mult: 2 }
   inner_product_param {
-    num_output: 128
+    num_output: 512
     weight_filler { type: "xavier" } bias_filler { type: "constant" }
   }
 }
 
-# @tanh(name=simulate2-tanh1)
+# @relu(name=simulate2-relu1)
 layer {
-  name: "simulate2-tanh1"
+  name: "simulate2-relu1"
   bottom: "simulate2-fc1"
   top: "simulate2-fc1"
-  type: "TanH"
+  type: "ReLU"
 }
 
-# @ip(name=simulate2-fc2,paramName=simFC2Params,outputs=64)
+# @ip(name=simulate2-fc2,paramName=simFC2Params,outputs=256)
 layer {
   name: "simulate2-fc2"
   type: "InnerProduct"
@@ -498,17 +498,17 @@ layer {
   param { name: "simFC2Paramsw" lr_mult: 1 }
   param { name: "simFC2Paramsb" lr_mult: 2 }
   inner_product_param {
-    num_output: 64
+    num_output: 256
     weight_filler { type: "xavier" } bias_filler { type: "constant" }
   }
 }
 
-# @tanh(name=simulate2-tanh2)
+# @relu(name=simulate2-relu2)
 layer {
-  name: "simulate2-tanh2"
+  name: "simulate2-relu2"
   bottom: "simulate2-fc2"
   top: "simulate2-fc2"
-  type: "TanH"
+  type: "ReLU"
 }
 
 # @ip(name=physState3,paramName=simFC3Params,outputs=64)
@@ -525,12 +525,12 @@ layer {
   }
 }
 
-# @tanh(name=simulate2-tanh3)
+# @relu(name=simulate2-relu3)
 layer {
-  name: "simulate2-tanh3"
+  name: "simulate2-relu3"
   bottom: "physState3"
   top: "physState3"
-  type: "TanH"
+  type: "ReLU"
 }
 
 

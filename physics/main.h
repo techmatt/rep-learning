@@ -8,7 +8,7 @@ using namespace std;
 
 typedef ColorImageR8G8B8A8 Bitmap;
 
-#include "physicsWorld.h"
-#include "physicsDatabase.h"
+#include "../common/physicsWorld.h"
+#include "../common/physicsDatabase.h"
 
 #include "vizzer.h"

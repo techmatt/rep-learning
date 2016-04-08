@@ -55,9 +55,9 @@ template<class BinaryDataBuffer, class BinaryDataCompressor>
 inline BinaryDataStream<BinaryDataBuffer, BinaryDataCompressor>& operator>>(BinaryDataStream<BinaryDataBuffer, BinaryDataCompressor>& s, PhysicsNetEntry &data) {
     s.readPrimitive(data.history);
 
-    data.future.resize(PhysicsNetEntry::frameCount);
+    data.future.resize(PhysicsNetEntry::futureFrameCount);
     for (int i = 0; i < PhysicsNetEntry::futureFrameCount; i++)
-        s.writePrimitive(data.future[i]);
+        s.readPrimitive(data.future[i]);
 
     return s;
 }
