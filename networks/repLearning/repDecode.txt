@@ -1,0 +1,21 @@
+params=prefix,bottomPhys,bottomMaterial,target
+@concat2(name=#prefix-concat,bottomA=#bottomPhys,bottomB=#bottomMaterial)
+@ip(name=#prefix-fc1,paramName=decodeFC1Params,outputs=128)
+@relu(name=#prefix-relu1)
+@ip(name=#prefix-fc2,paramName=decodeFC2Params,outputs=256)
+@relu(name=#prefix-relu2)
+@ip(name=#prefix-fc3,paramName=decodeFC3Params,outputs=3136)
+@relu(name=#prefix-relu3)
+#reshape(name=#prefix-reshape,dimA=64,dimB=7,dimC=7)
+@upconv(name=#prefix-upconv4,paramName=decodeUpconv4Params,outputs=128,kernel=4,stride=2,pad=0)
+@relu(name=#prefix-relu4)
+@upconv(name=#prefix-upconv5,paramName=decodeUpconv5Params,outputs=128,kernel=4,stride=2,pad=0)
+@relu(name=#prefix-relu5)
+@upconv(name=#prefix-upconv6,paramName=decodeUpconv6Params,outputs=3,kernel=4,stride=2,pad=0)
+layer {
+  name: "#prefix-loss"
+  type: "EuclideanLoss"
+  bottom: "#prefix-upconv6"
+  bottom: "#target"
+  top: "#prefix-loss"
+}

@@ -1,0 +1,36 @@
+params=batchSize
+name: "RepNet"
+
+input: "history"
+input_dim: #batchSize
+input_dim: 12
+input_dim: 128
+input_dim: 128
+
+input: "future1"
+input_dim: #batchSize
+input_dim: 3
+input_dim: 64
+input_dim: 64
+
+input: "future2"
+input_dim: #batchSize
+input_dim: 3
+input_dim: 64
+input_dim: 64
+
+input: "future3"
+input_dim: #batchSize
+input_dim: 3
+input_dim: 64
+input_dim: 64
+
+@repEncode(prefix=encode,bottom=history,topPhys=physState0,topMaterial=materialState)
+
+@repSimulate(prefix=simulate0,bottom=physState0,top=physState1)
+@repSimulate(prefix=simulate1,bottom=physState1,top=physState2)
+@repSimulate(prefix=simulate2,bottom=physState2,top=physState3)
+
+@repDecode(prefix=decode1,bottomPhys=physState1,bottomMaterial=materialState,target=future1)
+@repDecode(prefix=decode2,bottomPhys=physState2,bottomMaterial=materialState,target=future2)
+@repDecode(prefix=decode3,bottomPhys=physState3,bottomMaterial=materialState,target=future3)
