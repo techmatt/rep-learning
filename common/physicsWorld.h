@@ -67,16 +67,26 @@ struct PhysicsBody
 
 struct PhysicsWorld
 {
+    PhysicsWorld()
+    {
+        world = nullptr;
+    }
+    ~PhysicsWorld()
+    {
+        SAFE_DELETE(world);
+    }
     void init();
     void microStep();
     void macroStep();
     void render(const PhysicsRender &render, ColorImageR8G8B8A8 &image);
+    vector<float> getState() const;
 
     b2World *world;
 
     //b2Body *groundBody;
     
     vector<PhysicsBody> bodies;
+    
 
 private:
     void addSphere(const vec2f &position, const vec3f &color, float radius, float density, const vec2f &initialForce);

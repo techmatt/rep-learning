@@ -1,9 +1,11 @@
-params=prefix,bottom,top
-@ip(name=#prefix-fc0,paramName=simFC0Params,bottom=#bottom,outputs=512)
+params=prefix,bottom,top,physStateDim
+@ip(name=#prefix-fc0,paramName=simFC0Params,bottom=#bottom,outputs=128)
 @tanh(name=#prefix-relu0)
-@ip(name=#prefix-fc1,paramName=simFC1Params,outputs=512)
+@ip(name=#prefix-fc1,paramName=simFC1Params,outputs=128)
 @tanh(name=#prefix-relu1)
-@ip(name=#prefix-fc2,paramName=simFC2Params,outputs=256)
+@ip(name=#prefix-fc2,paramName=simFC2Params,outputs=128)
 @tanh(name=#prefix-relu2)
-@ip(name=#top,paramName=simFC3Params,outputs=64)
+@ip(name=#prefix-fc3,paramName=simFC3Params,outputs=128)
 @tanh(name=#prefix-relu3)
+@ip(name=#top,paramName=simFC4Params,outputs=#physStateDim)
+@tanh(name=#prefix-relu4)

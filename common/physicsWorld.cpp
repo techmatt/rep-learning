@@ -1,6 +1,14 @@
 
 #include "main.h"
 
+vector<float> PhysicsWorld::getState() const
+{
+    vector<float> state;
+    state.push_back(bodies[4].position().x);
+    state.push_back(bodies[4].position().y);
+    return state;
+}
+
 void PhysicsWorld::render(const PhysicsRender &render, ColorImageR8G8B8A8 &image)
 {
     vector<vec3f> bodyColors;

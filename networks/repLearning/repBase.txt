@@ -1,4 +1,4 @@
-params=batchSize
+params=batchSize,physStateDim,totalStateDim
 name: "RepNet"
 
 input: "history"
@@ -25,12 +25,28 @@ input_dim: 3
 input_dim: 64
 input_dim: 64
 
-@repEncode(prefix=encode,bottom=history,topPhys=physState0,topMaterial=materialState)
+input: "future4"
+input_dim: #batchSize
+input_dim: 3
+input_dim: 64
+input_dim: 64
 
-@repSimulate(prefix=simulate0,bottom=physState0,top=physState1)
-@repSimulate(prefix=simulate1,bottom=physState1,top=physState2)
-@repSimulate(prefix=simulate2,bottom=physState2,top=physState3)
+input: "future5"
+input_dim: #batchSize
+input_dim: 3
+input_dim: 64
+input_dim: 64
+
+@repEncode(prefix=encode,bottom=history,topPhys=physState0,topMaterial=materialState,physStateDim=#physStateDim,totalStateDim=#totalStateDim)
+
+@repSimulate(prefix=simulate0,bottom=physState0,top=physState1,physStateDim=#physStateDim)
+@repSimulate(prefix=simulate1,bottom=physState1,top=physState2,physStateDim=#physStateDim)
+@repSimulate(prefix=simulate2,bottom=physState2,top=physState3,physStateDim=#physStateDim)
+@repSimulate(prefix=simulate3,bottom=physState3,top=physState4,physStateDim=#physStateDim)
+@repSimulate(prefix=simulate4,bottom=physState4,top=physState5,physStateDim=#physStateDim)
 
 @repDecode(prefix=decode1,bottomPhys=physState1,bottomMaterial=materialState,target=future1)
 @repDecode(prefix=decode2,bottomPhys=physState2,bottomMaterial=materialState,target=future2)
 @repDecode(prefix=decode3,bottomPhys=physState3,bottomMaterial=materialState,target=future3)
+@repDecode(prefix=decode4,bottomPhys=physState4,bottomMaterial=materialState,target=future4)
+@repDecode(prefix=decode5,bottomPhys=physState5,bottomMaterial=materialState,target=future5)

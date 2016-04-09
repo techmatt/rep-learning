@@ -2,7 +2,8 @@
 struct PhysicsNetEntry
 {
     static const int historyFrameCount = 4;
-    static const int futureFrameCount = 3;
+    static const int futureFrameCount = 1;
+    static const int futureStateCount = 20;
 
     vector<ColorImageR8G8B8A8> makeVisualization()
     {
@@ -35,7 +36,7 @@ struct PhysicsNetEntry
 
         for (int i = 0; i < futureFrameCount; i++)
         {
-            result.push_back(makeImage(future[i]));
+            result.push_back(makeImage(futureFrames[i]));
         }
         return result;
     }
@@ -57,14 +58,16 @@ struct PhysicsNetEntry
     // 128x128
     // frame 0 - 3 = history, 4 - 6 = future
     Grid3uc history;
-    vector<Grid3uc> future;
+    vector<Grid3uc> futureFrames;
+    vector< vector<float> > futureStates;
 };
 
 template<class BinaryDataBuffer, class BinaryDataCompressor>
 inline BinaryDataStream<BinaryDataBuffer, BinaryDataCompressor>& operator<<(BinaryDataStream<BinaryDataBuffer, BinaryDataCompressor>& s, const PhysicsNetEntry &data) {
     s.writePrimitive(data.history);
     for (int i = 0; i < PhysicsNetEntry::futureFrameCount; i++)
-        s.writePrimitive(data.future[i]);
+        s.writePrimitive(data.futureFrames[i]);
+    s << data.futureStates;
     return s;
 }
 
@@ -74,8 +77,8 @@ inline BinaryDataStream<BinaryDataBuffer, BinaryDataCompressor>& operator>>(Bina
 
     data.future.resize(PhysicsNetEntry::futureFrameCount);
     for (int i = 0; i < PhysicsNetEntry::futureFrameCount; i++)
-        s.readPrimitive(data.future[i]);
-
+        s.readPrimitive(data.futureFrames[i]);
+    s >> data.futureStates;
     return s;
 }
 

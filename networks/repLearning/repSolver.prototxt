@@ -4,12 +4,14 @@ lr_policy: "step"
 gamma: 0.1
 stepsize: 10000
 display: 20
-max_iter: 200000
+max_iter: 400000
 
 #type: "AdaGrad"
 type: "Adam"
 momentum: 0.9
 weight_decay: 0.0005
+
+iter_size: 2
 
 snapshot: 10000
 snapshot_prefix: "C:/Code/rep-learning/networks/repLearning/rep"

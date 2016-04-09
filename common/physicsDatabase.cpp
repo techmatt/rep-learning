@@ -1,8 +1,8 @@
 
 #include "main.h"
 
-const int physicsHistoryWidth = 128;
-const int physicsHistoryHeight = 128;
+const int physicsHistoryWidth = 64;
+const int physicsHistoryHeight = 64;
 
 const int physicsFutureWidth = 64;
 const int physicsFutureHeight = 64;
@@ -52,12 +52,19 @@ PhysicsNetEntry PhysicsNetDatabase::makeRandomEntry()
         world.macroStep();
     }
 
-    result.future.resize(PhysicsNetEntry::futureFrameCount);
-    for (int i = 0; i < PhysicsNetEntry::futureFrameCount; i++)
+    result.futureFrames.resize(PhysicsNetEntry::futureFrameCount);
+    for (int i = 0; i < max(PhysicsNetEntry::futureFrameCount, PhysicsNetEntry::futureStateCount); i++)
     {
-        ColorImageR8G8B8A8 image(physicsFutureWidth, physicsFutureHeight);
-        world.render(renderParams, image);
-        result.future[i] = makeGrid3(image);
+        if (i < PhysicsNetEntry::futureFrameCount)
+        {
+            ColorImageR8G8B8A8 image(physicsFutureWidth, physicsFutureHeight);
+            world.render(renderParams, image);
+            result.futureFrames[i] = makeGrid3(image);
+        }
+        if (i < PhysicsNetEntry::futureStateCount)
+        {
+            result.futureStates.push_back(world.getState());
+        }
 
         world.macroStep();
     }
