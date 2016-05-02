@@ -1,5 +1,5 @@
 
-struct PhysicsNetEntry
+struct PhysicsNetEntryImage
 {
     static const int historyFrameCount = 4;
     static const int futureFrameCount = 1;
@@ -62,21 +62,28 @@ struct PhysicsNetEntry
     vector< vector<float> > futureStates;
 };
 
+struct PhysicsNetEntryFlat
+{
+    static const int stateCount = 20;
+    
+    vector< vector<float> > states;
+};
+
 template<class BinaryDataBuffer, class BinaryDataCompressor>
-inline BinaryDataStream<BinaryDataBuffer, BinaryDataCompressor>& operator<<(BinaryDataStream<BinaryDataBuffer, BinaryDataCompressor>& s, const PhysicsNetEntry &data) {
+inline BinaryDataStream<BinaryDataBuffer, BinaryDataCompressor>& operator<<(BinaryDataStream<BinaryDataBuffer, BinaryDataCompressor>& s, const PhysicsNetEntryImage &data) {
     s.writePrimitive(data.history);
-    for (int i = 0; i < PhysicsNetEntry::futureFrameCount; i++)
+    for (int i = 0; i < PhysicsNetEntryImage::futureFrameCount; i++)
         s.writePrimitive(data.futureFrames[i]);
     s << data.futureStates;
     return s;
 }
 
 template<class BinaryDataBuffer, class BinaryDataCompressor>
-inline BinaryDataStream<BinaryDataBuffer, BinaryDataCompressor>& operator>>(BinaryDataStream<BinaryDataBuffer, BinaryDataCompressor>& s, PhysicsNetEntry &data) {
+inline BinaryDataStream<BinaryDataBuffer, BinaryDataCompressor>& operator>>(BinaryDataStream<BinaryDataBuffer, BinaryDataCompressor>& s, PhysicsNetEntryImage &data) {
     s.readPrimitive(data.history);
 
-    data.future.resize(PhysicsNetEntry::futureFrameCount);
-    for (int i = 0; i < PhysicsNetEntry::futureFrameCount; i++)
+    data.future.resize(PhysicsNetEntryImage::futureFrameCount);
+    for (int i = 0; i < PhysicsNetEntryImage::futureFrameCount; i++)
         s.readPrimitive(data.futureFrames[i]);
     s >> data.futureStates;
     return s;
@@ -86,7 +93,9 @@ struct PhysicsNetDatabase
 {
     void init();
 
-    static PhysicsNetEntry makeRandomEntry();
+    static PhysicsNetEntryImage makeRandomEntryImage();
+    static PhysicsNetEntryFlat makeRandomEntryFlat();
     
-    void createDatabase(const string &directory, int sampleCount);
+    void createDatabaseImage(const string &directory, int sampleCount);
+    void createDatabaseFlat(const string &filename, int sampleCount);
 };

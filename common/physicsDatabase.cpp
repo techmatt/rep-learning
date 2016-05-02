@@ -12,7 +12,7 @@ void PhysicsNetDatabase::init()
     
 }
 
-PhysicsNetEntry PhysicsNetDatabase::makeRandomEntry()
+PhysicsNetEntryImage PhysicsNetDatabase::makeRandomEntryImage()
 {
     auto makeGrid3 = [](const ColorImageR8G8B8A8 &image)
     {
@@ -35,10 +35,10 @@ PhysicsNetEntry PhysicsNetDatabase::makeRandomEntry()
 
     const PhysicsRender renderParams = PhysicsRender::random();
 
-    PhysicsNetEntry result;
-    result.history.allocate(physicsHistoryWidth, physicsHistoryHeight, PhysicsNetEntry::historyFrameCount * 3);
+    PhysicsNetEntryImage result;
+    result.history.allocate(physicsHistoryWidth, physicsHistoryHeight, PhysicsNetEntryImage::historyFrameCount * 3);
 
-    for (int i = 0; i < PhysicsNetEntry::historyFrameCount; i++)
+    for (int i = 0; i < PhysicsNetEntryImage::historyFrameCount; i++)
     {
         ColorImageR8G8B8A8 image(physicsHistoryWidth, physicsHistoryHeight);
         world.render(renderParams, image);
@@ -52,16 +52,16 @@ PhysicsNetEntry PhysicsNetDatabase::makeRandomEntry()
         world.macroStep();
     }
 
-    result.futureFrames.resize(PhysicsNetEntry::futureFrameCount);
-    for (int i = 0; i < max(PhysicsNetEntry::futureFrameCount, PhysicsNetEntry::futureStateCount); i++)
+    result.futureFrames.resize(PhysicsNetEntryImage::futureFrameCount);
+    for (int i = 0; i < max(PhysicsNetEntryImage::futureFrameCount, PhysicsNetEntryImage::futureStateCount); i++)
     {
-        if (i < PhysicsNetEntry::futureFrameCount)
+        if (i < PhysicsNetEntryImage::futureFrameCount)
         {
             ColorImageR8G8B8A8 image(physicsFutureWidth, physicsFutureHeight);
             world.render(renderParams, image);
             result.futureFrames[i] = makeGrid3(image);
         }
-        if (i < PhysicsNetEntry::futureStateCount)
+        if (i < PhysicsNetEntryImage::futureStateCount)
         {
             result.futureStates.push_back(world.getState());
         }
@@ -71,18 +71,44 @@ PhysicsNetEntry PhysicsNetDatabase::makeRandomEntry()
     return result;
 }
 
-void PhysicsNetDatabase::createDatabase(const string &directory, int sampleCount)
+PhysicsNetEntryFlat PhysicsNetDatabase::makeRandomEntryFlat()
 {
-    mBase::Writer<PhysicsNetEntry> writer(directory);
+    PhysicsWorld world;
+    world.init();
+
+    const int stepCount = util::randomInteger(10, 50);
+    for (int i = 0; i < stepCount; i++)
+    {
+        world.macroStep();
+    }
+
+    PhysicsNetEntryFlat result;
+
+    result.states.resize(PhysicsNetEntryFlat::stateCount);
+    for (int i = 0; i < PhysicsNetEntryFlat::stateCount; i++)
+    {
+        vector<float> startState = world.getState();
+        world.macroStep();
+        vector<float> endState = world.getState();
+
+        vector<float> fullState = startState;
+        fullState.push_back(endState[0] - startState[0]);
+        fullState.push_back(endState[1] - startState[1]);
+        result.states.push_back(fullState);
+    }
+    return result;
+}
+
+void PhysicsNetDatabase::createDatabaseImage(const string &directory, int sampleCount)
+{
+    mBase::Writer<PhysicsNetEntryImage> writer(directory);
 
     for (int sampleIndex = 0; sampleIndex < sampleCount; sampleIndex++)
     {
         if (sampleIndex % 100 == 0)
             cout << "Sample " << sampleIndex << " / " << sampleCount << endl;
 
-        PhysicsNetEntry sample;
-
-        sample = makeRandomEntry();
+        PhysicsNetEntryImage sample = makeRandomEntryImage();
 
         if (sampleIndex <= 2)
         {
@@ -93,4 +119,23 @@ void PhysicsNetDatabase::createDatabase(const string &directory, int sampleCount
     }
 
     writer.finalize();
+}
+
+
+void PhysicsNetDatabase::createDatabaseFlat(const string &filename, int sampleCount)
+{
+    ofstream file(filename);
+    for (int sampleIndex = 0; sampleIndex < sampleCount; sampleIndex++)
+    {
+        if (sampleIndex % 100 == 0)
+            cout << "Sample " << sampleIndex << " / " << sampleCount << endl;
+
+        PhysicsNetEntryFlat sample = makeRandomEntryFlat();
+        for (auto &s : sample.states)
+            for (auto &v : s)
+            {
+                file << v << ",";
+            }
+        file << endl;
+    }
 }

@@ -1,7 +1,5 @@
 params=prefix,bottom,topPhys,topMaterial,physStateDim,totalStateDim
-@conv(name=#prefix-conv1,bottom=#bottom,outputs=128,kernel=5,stride=2)
-@relu(name=#prefix-relu1)
-@conv(name=#prefix-conv2,outputs=128,kernel=5,stride=2)
+@conv(name=#prefix-conv2,bottom=#bottom,outputs=128,kernel=5,stride=2)
 @relu(name=#prefix-relu2)
 @conv(name=#prefix-conv3,outputs=128,kernel=3)
 @relu(name=#prefix-relu3)
