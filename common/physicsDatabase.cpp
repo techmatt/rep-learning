@@ -91,7 +91,7 @@ PhysicsNetEntryFlat PhysicsNetDatabase::makeRandomEntryFlat()
         world.macroStep();
         vector<float> endState = world.getState();
 
-        vector<float> fullState = startState;
+        vector<float> fullState = endState;
         fullState.push_back(endState[0] - startState[0]);
         fullState.push_back(endState[1] - startState[1]);
         result.states.push_back(fullState);

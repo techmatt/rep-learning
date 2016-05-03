@@ -61,7 +61,9 @@ void Vizzer::keyDown(ApplicationData &app, UINT key)
         PhysicsNetDatabase database;
         database.init();
         //database.createDatabase(R"(G:\PhysicsNet\databases\simpleDropPhysState2mil\)", 2000000);
+        
         database.createDatabaseFlat(R"(G:\PhysicsNet\databases\simpleBall2k.txt)", 2000);
+        //database.createDatabaseFlat(R"(G:\PhysicsNet\databases\simpleBall2mil.txt)", 2000000);
     }
 }
 
