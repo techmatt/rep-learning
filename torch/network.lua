@@ -7,7 +7,7 @@ require 'nngraph'
 local M = {}
 
 function M.createNet(p)
-  assert(p.batch and p.Tp and p.Kdim and p.Hdim and p.initLayers and p.Tn)
+  assert(p.Tp and p.Kdim and p.Hdim and p.initLayers and p.Tn)
   
   --Save in namespace
   local ns = {}
@@ -24,8 +24,8 @@ function M.createNet(p)
   
   --Initialize Xstate and Hstate
   for t=1,p.Tp do
-    ns.Xstate[t] = nn.SelectTable(t)(ns.X) 
-    ns.Hstate[t] = nn.View(p.batch,p.Tp*p.Kdim)(nn.SelectTable(t)(ns.XPacked))
+    ns.Xstate[t] = nn.Select(2,t)(ns.X)
+    ns.Hstate[t] = nn.View(p.Tp*p.Kdim)(nn.Select(2,t)(ns.XPacked))
     local prev = p.Tp*p.Kdim
     for _,h in ipairs(p.initLayers) do
       ns.Hstate[t] = nn.Tanh()(nn.Linear(prev,h)(ns.Hstate[t]))
@@ -36,19 +36,23 @@ function M.createNet(p)
   
   stateLen = p.Tp*(p.Hdim+p.Kdim)
   ns.Xout = {}
-  
+  print(stateLen)
   --
+  --8x48 -> (48,48) -> 8x48
   for t=1,p.Tn do
     --Create State Tensor
     Xsel = nn.JoinTable(2)(nn.NarrowTable(t,t+p.Tp)(ns.Xstate))
     Hsel = nn.JoinTable(2)(nn.NarrowTable(t,t+p.Tp)(ns.Hstate))
-    state = nn.JoinTable(2)({Hsel,Xsel})
+    nstate = nn.JoinTable(2)({Hsel,Xsel})
+    
+    --The following does not work. I think it is a bug in Torch/nn/nngraph
+    --nstate = nn.Tanh()(nn.Linear(stateLen,stateLen)(state))
     
     -- do the reccurance pass
-    ns.Xstate[t+p.Tp] = nn.Linear(stateLen,p.Kdim)(state)
-    ns.Hstate[t+p.Tp] = nn.Tanh()(nn.Linear(stateLen,p.Hdim)(state))
+    ns.Xstate[t+p.Tp] = nn.Linear(stateLen,p.Kdim)(nstate)
+    ns.Hstate[t+p.Tp] = nn.Tanh()(nn.Linear(stateLen,p.Hdim)(nstate))
     
-    --Add output
+    --set output
     ns.Xout[t] = ns.Xstate[p.Tp+t]
   end
   
@@ -62,7 +66,7 @@ function M.createNet(p)
   --Share the weights
   ns.params, ns.gradParams = mod:parameters()
   print("INIT")
-  print(ns.params)
+  --print(ns.params)
   
   local function funprint(a,b)
     print(tostring(a).."<--"..tostring(b))
@@ -72,7 +76,7 @@ function M.createNet(p)
   nI = #p.initLayers
   for t=1,p.Tp-1 do
     for i=1,2*nI do
-      funprint(t*2*nI+i,i)
+      --funprint(t*2*nI+i,i)
       --Share Weights and Biases
       ns.params[t*2*nI+i]:set(ns.params[i])
       ns.gradParams[t*2*nI+i]:set(ns.gradParams[i])
@@ -93,7 +97,7 @@ function M.createNet(p)
   recurOffset = p.Tp*nI*2
   for t=1,p.Tn-1 do
     for i=1,4 do
-      funprint(recurOffset+t*4+i,recurOffset+i)
+      --funprint(recurOffset+t*4+i,recurOffset+i)
       ns.params[recurOffset+t*4+i]:set(ns.params[recurOffset+i])
       ns.gradParams[recurOffset+t*4+i]:set(ns.gradParams[recurOffset+i])
     end
@@ -111,7 +115,7 @@ function M.createNet(p)
  
   
   print("AFTER")
-  print(ns.params)
+  --print(ns.params)
   mod.ns = ns
   return mod
 end

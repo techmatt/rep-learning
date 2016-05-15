@@ -15,16 +15,17 @@ local function ptable(T)
   end
 end
 
-local lr = .01
+local lr = 0.001
+local epochs = 10
 
-local batch = 5
+local batchSize = 5
 local Tp = 3
 local T = 12
 local Tn = 5
 local Kdim = 4
-local Hdim = 10
-local initLayers = {7,9, Hdim}
-local recLayers = {13,15,18,Hdim}
+local Hdim = 11
+local initLayers = {12,12,12,Hdim}
+--local recLayers = {13,15,18,Hdim}
 
 
 getData.parsefile{
@@ -36,15 +37,14 @@ getData.parsefile{
 
 data = getData.getData{
   Tp=Tp,
-  Tn=Tn
+  Tn=Tn,
+  Kdim=Kdim
 }
-print(data.XPacked)
-print(data.X)
-print(data.Y)
-print(data.X[1]:size()[1])
+print(data.XPacked:size())
+print(data.X:size())
+print(data.Y:size())
 
 mod = network.createNet{
-  batch=batch,
   Tp=Tp,
   Kdim=Kdim,
   Hdim=Hdim,
@@ -52,30 +52,51 @@ mod = network.createNet{
   Tn=Tn
 }
 
-local function train(p)
-  assert(p.data and p.mod and p.lr and p.batchSize and p.epochs)
-  trainSize = p.data.X[1].size()[1]
-  assert(p.trainSize%p.batchSize==0)
-  perEpoch = p.trainSize/p.batchSize
+local function SGD(p)
+  assert(p.data and p.mod and p.Tn and p.lr and p.batchSize and p.epochs)
+  trainSize = p.data.X:size()[1]
+  print(trainSize)
+  assert(trainSize%p.batchSize==0)
+  perEpoch = trainSize/p.batchSize
+  local lr = p.lr
   for e=1,p.epochs do
-    for i=0,perEpoch do
-      bSel = {{i*p.batchSize,(i+1)*p.batchSize}}
-      out = mod:forward({data.XPacked[bSel],data.X[bSel]})
-      print(out)
+    print("----------EPOCH "..tostring(e))
+    for i=0,perEpoch-1 do
+      --Simple batchSelector
+      bSel = {{i*p.batchSize+1,(i+1)*p.batchSize}}
+      out = mod:forward({p.data.XPacked[bSel],p.data.X[bSel]})
+      
+      --Use MSE
       criterion = nn.MSECriterion()
+      
+      --calculate loss and backprop MSE for each output
       loss=0
       dloss = {}
-      for t=1,Tn do
-        loss = loss + criterion:forward(out[t],data.Y[t])
-        dloss[t] = criterion:backward(out[t],data.Y[t])
+      for t=1,p.Tn do
+        local sel = {{i*p.batchSize+1,(i+1)*p.batchSize},t}
+        loss = loss + criterion:forward(out[t],p.data.Y[sel])
+        dloss[t] = criterion:backward(out[t],p.data.Y[sel])
       end
       dloss[Tn+1] = out[Tn+1]
       mod:zeroGradParameters()
-      mod:backward({data.Xpacked,data.X},dloss)
+      mod:backward({p.data.XPacked[bSel],p.data.X[bSel]},dloss)
       mod:updateParameters(lr)
-      print(loss)
+      if(i%16==0) then print(loss) end
+    end
+    if(e%2==0) then
+      lr = lr/3
     end
   end
 end
+
+SGD{
+  data=data,
+  mod=mod,
+  lr=lr,
+  Tn=Tn,
+  batchSize=batchSize,
+  epochs=epochs
+}
+
 --print(mod.mods[5].weight == mod.mods[7].weight)
 --print(mod.mods[1].mods[2].mods[2].weight == mod.mods[1].mods[4].mods[2].weight)

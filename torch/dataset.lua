@@ -41,17 +41,18 @@ end
 --TODO 
 function M.getData(p)
   assert(M.rawdata)
-  assert(p.Tp and p.Tn)
+  assert(p.Tp and p.Tn and p.Kdim)
+  numElems = M.rawdata:size()[1]
   local data = {}
-  data.XPacked = {}
-  data.X = {}
-  data.Y = {}
+  data.XPacked = torch.Tensor(numElems,p.Tp,p.Tp,p.Kdim)
+  data.X = torch.Tensor(numElems,p.Tp,p.Kdim)
+  data.Y = torch.Tensor(numElems,p.Tn,p.Kdim)
   for t=1,p.Tp do
-    data.XPacked[t] = M.rawdata[{{},{t,t+p.Tp-1},{}}]:clone()
-    data.X[t] = M.rawdata[{{},{t},{}}]:squeeze()
+    data.XPacked[{{},t}] = M.rawdata[{{},{t,t+p.Tp-1},{}}]:clone()
+    data.X[{{},t}] = M.rawdata[{{},t,{}}]:squeeze()
   end
   for t=p.Tp+1,p.Tp+p.Tn do
-    data.Y[t-p.Tp] = M.rawdata[{{},{t},{}}]:squeeze()
+    data.Y[{{},t-p.Tp}] = M.rawdata[{{},{t},{}}]:squeeze()
   end
   return data
 end
