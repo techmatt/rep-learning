@@ -17,40 +17,39 @@ end
 
 local lr = 0.001
 local epochs = 10
-
 local batchSize = 5
-local Tp = 3
-local T = 12
-local Tn = 5
-local Kdim = 4
-local Hdim = 11
-local initLayers = {12,12,12,Hdim}
---local recLayers = {13,15,18,Hdim}
 
+local p = {}
+p.Tp = 3
+p.Tn = 3
+p.Kdim = 4
+p.Hdim = 20
+p.initLayers = {20,20,p.Hdim}
+p.recSharedLayers = {36,20}
+p.recKLayers = {20,p.Kdim}
+p.recHLayers = {20,p.Hdim}
+
+print(p.recKLayers)
+
+network.printNet(p)
 
 getData.parsefile{
   file = "../datasets/simpleBall2k.txt",
-  Kdim=Kdim,
-  T=T,
+  Kdim=p.Kdim,
+  T=2*p.Tp+p.Tn,
   numElems=2000
 }
 
 data = getData.getData{
-  Tp=Tp,
-  Tn=Tn,
-  Kdim=Kdim
+  Tp=p.Tp,
+  Tn=p.Tn,
+  Kdim=p.Kdim
 }
-print(data.XPacked:size())
-print(data.X:size())
-print(data.Y:size())
+--print(data.XPacked:size())
+--print(data.X:size())
+--print(data.Y:size())
 
-mod = network.createNet{
-  Tp=Tp,
-  Kdim=Kdim,
-  Hdim=Hdim,
-  initLayers=initLayers,
-  Tn=Tn
-}
+rnn = network.createNet(p)
 
 local function SGD(p)
   assert(p.data and p.mod and p.Tn and p.lr and p.batchSize and p.epochs)
@@ -58,7 +57,6 @@ local function SGD(p)
   print(trainSize)
   assert(trainSize%p.batchSize==0)
   perEpoch = trainSize/p.batchSize
-  local lr = p.lr
   for e=1,p.epochs do
     print("----------EPOCH "..tostring(e))
     for i=0,perEpoch-1 do
@@ -77,23 +75,23 @@ local function SGD(p)
         loss = loss + criterion:forward(out[t],p.data.Y[sel])
         dloss[t] = criterion:backward(out[t],p.data.Y[sel])
       end
-      dloss[Tn+1] = out[Tn+1]
+      dloss[p.Tn+1] = out[p.Tn+1]
       mod:zeroGradParameters()
       mod:backward({p.data.XPacked[bSel],p.data.X[bSel]},dloss)
       mod:updateParameters(lr)
       if(i%16==0) then print(loss) end
     end
-    if(e%2==0) then
-      lr = lr/3
+    if(e%3==0) then
+      p.lr = p.lr/3
     end
   end
 end
 
 SGD{
   data=data,
-  mod=mod,
+  mod=rnn,
+  Tn=p.Tn,
   lr=lr,
-  Tn=Tn,
   batchSize=batchSize,
   epochs=epochs
 }

@@ -38,7 +38,6 @@ end
 --Fucking slicing a:b includes both a and b
 --Need clone because the data needs to be contiguous
 
---TODO 
 function M.getData(p)
   assert(M.rawdata)
   assert(p.Tp and p.Tn and p.Kdim)
@@ -49,10 +48,10 @@ function M.getData(p)
   data.Y = torch.Tensor(numElems,p.Tn,p.Kdim)
   for t=1,p.Tp do
     data.XPacked[{{},t}] = M.rawdata[{{},{t,t+p.Tp-1},{}}]:clone()
-    data.X[{{},t}] = M.rawdata[{{},t,{}}]:squeeze()
+    data.X[{{},t}] = M.rawdata[{{},t+p.Tp,{}}]:squeeze()
   end
-  for t=p.Tp+1,p.Tp+p.Tn do
-    data.Y[{{},t-p.Tp}] = M.rawdata[{{},{t},{}}]:squeeze()
+  for t=1,p.Tn do
+    data.Y[{{},t}] = M.rawdata[{{},{t+2*p.Tp},{}}]:squeeze()
   end
   return data
 end
